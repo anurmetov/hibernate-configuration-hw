@@ -24,7 +24,7 @@ public class MovieDaoImpl implements MovieDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new DataProcessingException("Can't add movie");
+            throw new DataProcessingException("Can't add movie", e);
         } finally {
             if (session != null) {
                 session.close();
@@ -47,7 +47,7 @@ public class MovieDaoImpl implements MovieDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new DataProcessingException("Cant find a movie");
+            throw new DataProcessingException("Cant find a movie", e);
         } finally {
             if (session != null) {
                 session.close();
