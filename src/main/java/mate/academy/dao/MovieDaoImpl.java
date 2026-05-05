@@ -13,7 +13,7 @@ import org.hibernate.Transaction;
 public class MovieDaoImpl implements MovieDao {
     @Override
     public Movie add(Movie movie) {
-        SessionFactory sessionFactory = HibernateUtil.getSession();
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = null;
         Transaction transaction = null;
         try {
@@ -36,20 +36,13 @@ public class MovieDaoImpl implements MovieDao {
 
     @Override
     public Optional<Movie> get(Long id) {
-        SessionFactory sessionFactory = HibernateUtil.getSession();
         Session session = null;
-        Transaction transaction = null;
         try {
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
-            Movie movie = session.find(Movie.class, id);
-            transaction.commit();
-            return Optional.of(movie);
+            session = HibernateUtil.getSessionFactory().openSession();
+            Movie movie = session.get(Movie.class, id);
+            return Optional.ofNullable(movie);
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw new DataProcessingException("Cant find a movie", e);
+            throw new DataProcessingException("Can't get movie by id: " + id, e);
         } finally {
             if (session != null) {
                 session.close();
