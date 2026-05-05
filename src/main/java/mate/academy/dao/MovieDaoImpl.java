@@ -12,34 +12,46 @@ public class MovieDaoImpl implements MovieDao {
     @Override
     public Movie add(Movie movie) {
         SessionFactory sessionFactory = HibernateUtil.getSession();
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.persist(movie);
+        Session session = null;
+        Transaction transaction = null;
         try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            session.persist(movie);
             transaction.commit();
+            return movie;
         } catch (Exception e) {
-            throw new DataProcessingException("The transaction was unsuccessful");
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DataProcessingException("Can't add movie");
         } finally {
-            session.close();
+            if (session != null) {
+                session.close();
+            }
         }
-        return movie;
     }
 
     @Override
     public Optional<Movie> get(Long id) {
         SessionFactory sessionFactory = HibernateUtil.getSession();
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        Movie movie = session.find(Movie.class, id);
-
+        Session session = null;
+        Transaction transaction = null;
         try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            Movie movie = session.find(Movie.class, id);
             transaction.commit();
+            return Optional.of(movie);
         } catch (Exception e) {
-            throw new DataProcessingException("The transaction was unsuccessful");
-
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DataProcessingException("Cant find a movie");
         } finally {
-            session.close();
+            if (session != null) {
+                session.close();
+            }
         }
-        return Optional.ofNullable(movie);
     }
 }
